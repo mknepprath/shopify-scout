@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <meta charset="UTF-8">
+    <title>Shopify Scout</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/vue"></script>
+
+  </head>
+
+  <body>
+
+    <div id="scout">
+      <p>
+        <input v-model="query">
+      </p>
+      <p>{{ answer }}</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+    <script>
+      const products = []
+
+      // get Shopify product data here
+      fetch('https://gist.githubusercontent.com/mknepprath/f1dd18a162720b211fbe9e3b8fc91736/raw/c715e132f66d2cbbca89b23d462d9c197db54d8d/sample-products.json')
+        .then(blob => blob.json())
+        .then(data => products.push(...data))
+
+      var shopifyScout = new Vue({
+        el: '#scout',
+        data: {
+          query: '',
+          answer: 'What are you looking for?'
+        },
+        watch: {
+          // whenever query changes, this function will run
+          query: function (newQuery, oldQuery) {
+            this.answer = 'Typing...'
+            this.getAnswer()
+          }
+        },
+        methods: {
+          getAnswer: _.debounce(
+            function () {
+
+              this.answer = 'Thinking...'
+              var vm = this
+
+              this.answer = products.map(p => p.title).join(', ')
+
+              // axios.get('https://yesno.wtf/api')
+              //   .then(function (response) {
+              //     vm.answer = _.capitalize(response.data.answer)
+              //   })
+              //   .catch(function (error) {
+              //     vm.answer = 'Error! Could not reach the API. ' + error
+              //   })
+            },
+            // This is the number of milliseconds we wait for the
+            // user to stop typing.
+            500
+          )
+        }
+      })
+
+    </script>
+  </body>
+</html>
